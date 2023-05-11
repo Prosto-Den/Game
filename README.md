@@ -1,2 +1,2 @@
 # Game
-scroll shhoter on pygame
+scroll shooter on pygame

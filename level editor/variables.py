@@ -1,9 +1,9 @@
-# размеры для экрана
+# размеры экрана
 WIDTH = 1000
 HEIGHT = int(0.8 * WIDTH)
 
+RIGHT_MARGIN = 250
 BOTTOM_MARGIN = 100
-RIGHT_MARGIN = 300
 
 RESOLUTION = (WIDTH + RIGHT_MARGIN, HEIGHT + BOTTOM_MARGIN)
 
@@ -12,19 +12,22 @@ MENU_COLOR = (132, 177, 255)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
-# размер клетки
-TILE_SIZE = 50
+# размеры уровня
+ROWS = 16
+COLUMNS = 150
 
 # для пролистывания
 scroll = 0
 scroll_speed = 5
-increase_scroll_speed = False
-scroll_right = False
 scroll_left = False
+scroll_right = False
 
 # для кнопок
-current_btn = 0
-chosen_btn = 0
+current_tile = 0
+btn_count = 0
+
+# размер клетки
+TILE_SIZE = 50
 
 # FPS
 FPS = 144

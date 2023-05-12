@@ -3,16 +3,16 @@ import variables as var
 
 
 class Button:
-    def __init__(self, image: pygame.Surface, x: int, y: int):
-        super().__init__()
+    def __init__(self, image, x, y):
+        img = image
 
-        image = pygame.transform.scale(image, (var.TILE_SIZE, var.TILE_SIZE))
-        self.image: pygame.Surface = image
+        img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
+
+        self.image = img
         self.rect = self.image.get_rect(topleft = (x, y))
-
         self.clicked = False
 
-    def draw(self, screen: pygame.Surface):
+    def draw(self, screen):
         screen.blit(self.image, self.rect)
 
         action = False
@@ -21,8 +21,8 @@ class Button:
 
         if self.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] and not self.clicked:
-                self.clicked = True
                 action = True
+                self.clicked = True
 
             if not pygame.mouse.get_pressed()[0]:
                 self.clicked = False

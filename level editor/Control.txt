@@ -1,0 +1,11 @@
+Press W/S to change the level number
+
+Press A/D to scroll the area
+
+Press ESCAPE to quit.
+----------------------------------------------
+Нажмите W/S, чтобы изменить номер уровня
+
+Нажмите A/D для пролистывания уровня
+
+Нажмите ESCAPE, чтобы выйти

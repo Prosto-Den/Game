@@ -76,6 +76,7 @@ while run:
     for event in pygame.event.get():
         # выход из редактора
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            pygame.quit()
             run = False
             break
 

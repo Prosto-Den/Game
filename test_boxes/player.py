@@ -37,8 +37,9 @@ class Player:
         # отключаем скроллинг в самом начале игры
         self.on_scroll = False
 
+        # для прилипания к стенке
         self.sticky = False
-        self.sticky_timer = 0
+        self.ground = True
 
     # отрисовка игрока на экране
     def draw(self):
@@ -57,12 +58,14 @@ class Player:
             dx += self.speed
             self.direction = 1
             self.flip = False
+            self.ground = True
 
         # налево
         if self.moving_left:
             dx -= self.speed
             self.direction = -1
             self.flip = True
+            self.ground = True
 
         # прыжок
         if self.jump and not self.in_air and not self.sticky:
@@ -100,8 +103,7 @@ class Player:
                     self.in_air = False
                     dy = tile[1].top - self.rect.bottom
 
-                    if self.sticky_timer > 0:
-                        self.sticky_timer = 0
+                    self.ground = True
 
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.image.get_width(), self.image.get_height()):
                 dx = 0
@@ -115,9 +117,11 @@ class Player:
                 if self.vel_y > 0:
                     dy = box.rect.top - self.rect.bottom
                     self.in_air = False
+                    self.ground = True
 
         if pygame.sprite.spritecollide(self, self.game.sticky_group, False):
             self.sticky = True
+            self.ground = False
 
         else:
             self.sticky = False
@@ -127,17 +131,13 @@ class Player:
             self.in_air = False
 
             if self.jump:
-                self.sticky_timer = 45
-
                 self.vel_y = -self.jump_force
                 dy = self.vel_y
 
                 self.sticky = False
                 self.in_air = True
 
-        if self.sticky_timer > 0:
-            self.sticky_timer -= 1
-
+        if not self.sticky and not self.ground:
             if self.direction < 0 and not self.moving_left:
                 dx += self.speed * 2
 

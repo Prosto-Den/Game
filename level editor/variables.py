@@ -1,3 +1,5 @@
+import os
+
 # размеры экрана
 WIDTH = 1000
 HEIGHT = int(0.8 * WIDTH)
@@ -12,6 +14,7 @@ MENU_COLOR = (132, 177, 255)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (204, 0, 0)
+BROWN = (184, 151, 94)
 
 # размеры уровня
 ROWS = 16
@@ -26,9 +29,16 @@ scroll_right = False
 # для кнопок
 current_tile = 0
 btn_count = 0
+btn_col = 0
+btn_row = 0
 
 # размер клетки
 TILE_SIZE = 50
+
+# кол-во различных клеток
+dir = os.listdir('img/tiles')
+
+TILE_TYPES = len(dir)
 
 # номер создаваемого уровня
 level = 0

@@ -23,25 +23,33 @@ font = pygame.font.SysFont('arial', 30)
 clock = pygame.time.Clock()
 
 # картинки
-ground_img = pygame.Surface((var.TILE_SIZE, var.TILE_SIZE))
-ground1_img = pygame.Surface((var.TILE_SIZE, var.TILE_SIZE))
-ground1_img.fill((184, 151, 94))
+img_tiles = []
+
+for i in range(1, var.TILE_TYPES + 1):
+    img = pygame.image.load(f'img/tiles/tile{i}.png').convert_alpha()
+    img = pygame.transform.scale(img, (50, 50))
+
+    img_tiles.append(img)
 
 save_img = font.render('SAVE', True, var.WHITE)
 load_img = font.render('LOAD', True, var.WHITE)
 clear_img = font.render('CLEAR', True, var.WHITE)
 
-img_tiles = [ground_img, ground1_img]
-
 # кнопки
-ground_btn = btn.Button(ground_img, var.WIDTH + 10, 10)
-ground1_btn = btn.Button(ground1_img, var.WIDTH + 70, 10)
-
 save_btn = btn.Button(save_img, 500, var.HEIGHT)
 load_btn = btn.Button(load_img, 600, var.HEIGHT)
 clear_btn = btn.Button(clear_img, 550, var.HEIGHT + 50)
 
-btn_list = [ground_btn, ground1_btn]
+btn_list = []
+
+for i in range(var.TILE_TYPES):
+    btn_list.append(btn.Button(img_tiles[i], var.WIDTH + (75 * var.btn_col) + 25, 75 * var.btn_row + 25))
+
+    var.btn_col += 1
+
+    if var.btn_col == 3:
+        var.btn_row += 1
+        var.btn_col = 0
 
 
 def draw_grid():
@@ -76,7 +84,6 @@ while run:
     for event in pygame.event.get():
         # выход из редактора
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-            pygame.quit()
             run = False
             break
 
@@ -115,10 +122,10 @@ while run:
     # скроллинг мира
     if var.scroll_left and var.scroll > 0:
         var.scroll -= var.scroll_speed
-
     if var.scroll_right and var.scroll < var.COLUMNS * var.TILE_SIZE - var.WIDTH:
         var.scroll += var.scroll_speed
 
+    # получаем координаты курсора
     pos = pygame.mouse.get_pos()
     x = (pos[0] + var.scroll) // var.TILE_SIZE
     y = pos[1] // var.TILE_SIZE
@@ -127,7 +134,6 @@ while run:
         if pygame.mouse.get_pressed()[0]:
             if world_data[y][x] != var.current_tile:
                 world_data[y][x] = var.current_tile
-
         if pygame.mouse.get_pressed()[2]:
             if world_data[y][x] != -1:
                 world_data[y][x] = -1
@@ -138,6 +144,7 @@ while run:
     # рисуем сетку
     draw_grid()
 
+    # рисуем мир на поле
     draw_world()
 
     # отрисовка фона меню

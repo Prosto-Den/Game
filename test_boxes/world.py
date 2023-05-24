@@ -13,6 +13,9 @@ class World:
         with open('levels/level_data_0', 'rb') as data:
             self.world_data = pickle.load(data)
 
+        var.ROWS = len(self.world_data)
+        var.COLUMNS = len(self.world_data[0])
+
         # сразу же их анализируем
         for y, row in enumerate(self.world_data):
             for x, tile in enumerate(row):

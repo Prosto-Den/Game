@@ -22,6 +22,10 @@ SCROLL_THRESH = 200
 # размер клеток
 TILE_SIZE = 50
 
+# Размеры мира
+ROWS = 16
+COLUMNS = 150
+
 # картинки клеток
 dir_tiles = os.listdir('img/tiles')
 

@@ -19,6 +19,9 @@ class Game:
 
         self.world = world.World(self)
 
+        self.bullet_group = pygame.sprite.Group()
+        self.sticky_group = pygame.sprite.Group()
+
         self.font = pygame.font.SysFont('arial', 30)
 
     def draw_bg(self):
@@ -45,11 +48,20 @@ class Game:
 
         self.player.draw()
 
+        for bullet in self.bullet_group:
+            bullet.draw()
+
         for box in self.boxes:
             box.draw(var.scroll)
 
+        for stick in self.sticky_group:
+            stick.draw()
+
     def update(self):
         var.scroll = self.player.move()
+
+        for bullet in self.bullet_group:
+            bullet.move()
 
     def update_screen(self):
         pygame.display.flip()
@@ -70,6 +82,9 @@ class Game:
 
                 if event.key == pygame.K_w:
                     self.player.jump = True
+
+                if event.key == pygame.K_SPACE:
+                    self.player.fire = True
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_d:

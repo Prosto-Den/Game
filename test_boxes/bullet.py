@@ -25,14 +25,15 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (x, y))
 
         # параметры для движения пули
-        self.speed = 4
+        self.speed = 8
         self.vel_y = -3
-        self.gravity = 0.08
+        self.gravity = 0.3
         self.direction = direction
 
         # переменные для создания липкого блока
         self.slide_timer = 0
         self.counted = False
+        self.stop = False
 
         # флаги для проверки, на стене пулька или на платформе
         self.on_wall = False
@@ -45,6 +46,7 @@ class Bullet(pygame.sprite.Sprite):
     def move(self):
         # переменные для передвижения
         dx = dy = 0
+        x = y = 0
 
         """Рассчитываем перемещение по горизонтали"""
         dx = self.speed * self.direction
@@ -94,41 +96,9 @@ class Bullet(pygame.sprite.Sprite):
                 else:
                     """Останавливаем пулю"""
                     dy = 0
-
-                    # получаем координаты блока, на котором она остановилась
-                    x = ground[1].x // var.TILE_SIZE
-                    y = ground[1].y // var.TILE_SIZE
-
-                    # прибавляем значение к счётчику пуль
-                    if sticky_list[y][x] < 3 and not self.counted:
-                        sticky_list[y][x] += 1
-                        self.counted = True
-
-                    # если на блоке уже 3 пульки
-                    elif sticky_list[y][x] == 3:
-                        # нужен для проверки создания блока
-                        stick_created = False
-
-                        # считаем координаты липкого блока
-                        coord_x = ground[1].x - 0.2 * var.TILE_SIZE * self.direction
-                        coord_y = ground[1].y
-
-                        # проверяем, не создан ли уже на этом месте блок
-                        for stick in self.game.sticky_group:
-                            if stick.rect.topleft == (coord_x, coord_y):
-                                stick_created = True
-                                break
-
-                        # если не создан
-                        if not stick_created:
-                            # создаём липкий блок
-                            stick = sticky.Sticky(self.game, coord_x, coord_y, self.direction)
-
-                            # добавляем его в группу
-                            self.game.sticky_group.add(stick)
-
-                        # уничтожаем пульку
-                        self.kill()
+                    self.stop = True
+                    x = ground[1].x
+                    y = ground[1].y
 
         # проверка на столкновение с коробками
         for box in self.game.boxes:
@@ -186,6 +156,42 @@ class Bullet(pygame.sprite.Sprite):
         # обновляем координаты пули
         self.rect.x += dx
         self.rect.y += dy
+
+        if self.stop:
+            # получаем координаты блока, на котором она остановилась
+            tile_x = x // var.TILE_SIZE
+            tile_y = y // var.TILE_SIZE
+
+            # прибавляем значение к счётчику пуль
+            if sticky_list[tile_y][tile_x] < 3 and not self.counted:
+                sticky_list[tile_y][tile_x] += 1
+                self.counted = True
+
+            # если на блоке уже 3 пульки
+            elif sticky_list[tile_y][tile_x] == 3:
+                # нужен для проверки создания блока
+                stick_created = False
+
+                # считаем координаты липкого блока
+                coord_x = x - 0.2 * var.TILE_SIZE * self.direction
+                coord_y = y
+
+                # проверяем, не создан ли уже на этом месте блок
+                for stick in self.game.sticky_group:
+                    if stick.rect.topleft == (coord_x, coord_y):
+                        stick_created = True
+                        break
+
+                # если не создан
+                if not stick_created:
+                    # создаём липкий блок
+                    stick = sticky.Sticky(self.game, coord_x, coord_y, self.direction)
+
+                    # добавляем его в группу
+                    self.game.sticky_group.add(stick)
+
+                # уничтожаем пульку
+                self.kill()
 
         # если таймер времени жизни упал до 0
         if self.life_timer == 0:

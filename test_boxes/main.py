@@ -99,8 +99,7 @@ class Game:
     # обновляем объекты в мире
     def update(self):
         # обновляем переменную скроллинга
-        var.scroll = self.player.move()
-        var.bg_scroll -= var.scroll
+        self.player.update()
 
         # передвигаем пули
         for bullet in self.bullet_group:

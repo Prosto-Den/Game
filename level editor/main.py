@@ -164,6 +164,8 @@ while run:
 
         pickle_out.close()
 
+        var.timer_save = 250
+
     # загружаем уровень
     if load_btn.draw(screen):
         # ловим ошибку
@@ -195,6 +197,12 @@ while run:
         draw_text('There is not such file', 700, var.HEIGHT + 25, var.RED)
 
         var.timer_error -= 1
+
+    # ссообщение о том, что уровень был успешно сохранён
+    if var.timer_save > 0:
+        draw_text('Level has been successfully saved', 700, var.HEIGHT + 25, var.GREEN)
+
+        var.timer_save -= 1
 
     # выделяем выбранную кнопку
     pygame.draw.rect(screen, var.WHITE, btn_list[var.current_tile], 3)

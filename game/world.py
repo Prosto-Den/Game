@@ -3,8 +3,10 @@ import player
 import pickle
 import box
 import platform
-import os
+import enemy
+import lava
 import variables as var
+import os
 
 dir_tiles = os.listdir('img/tiles')
 
@@ -25,10 +27,11 @@ class World:
         self.game = game
 
         # загружаем данные
-        with open('levels/level_data_0', 'rb') as data:
+        with open(f'levels/level_data_{var.level}', 'rb') as data:
             self.world_data = pickle.load(data)
 
-        # сразу же их анализируем
+    # метод обработки данных. Нужен для первичной загрузки мира и рестарта
+    def process_data(self):
         counter = 0
 
         for y, row in enumerate(self.world_data):
@@ -52,7 +55,10 @@ class World:
                         self.game.boxes.append(b)
 
                     if tile == 2:
-                        pass
+                        img = IMG_LIST[tile].convert_alpha()
+                        lav = lava.Lava(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE, img)
+
+                        self.game.ketchup_group.add(lav)
 
                     if tile == 3:
                         pass
@@ -92,6 +98,10 @@ class World:
                     # если это игрок
                     if tile == 6:
                         self.game.player = player.Player(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
+
+                    if tile == 7:
+                        enm = enemy.Enemy(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
+                        self.game.enemies.add(enm)
 
     # рисуем мир
     def draw(self):

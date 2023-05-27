@@ -10,7 +10,7 @@ class Player:
         self.game = game
 
         # список со всеми анимациями
-        action_list = ['stand', 'walk', 'jump', 'push']
+        action_list = ['stand', 'walk', 'jump', 'push', 'death']
 
         # для анимации
         self.animation_list = []
@@ -24,7 +24,7 @@ class Player:
             images = os.listdir(f'img/player/{i}')
 
             for j in images:
-                img = pygame.image.load(f'img/player/{i}/{j}')
+                img = pygame.image.load(f'img/player/{i}/{j}').convert_alpha()
                 img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
 
                 temp_list.append(img)
@@ -35,11 +35,14 @@ class Player:
         self.image = self.animation_list[0][0]
         self.rect = self.image.get_rect(topleft = (x, y))
 
-        self.rect.width = self.image.get_width() // 2
-
         # размеры игрока
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+
+        self.health = 3
+        self.alive = True
+        self.invincibility = False
+        self.invincibility_timer = 0
 
         # скорость игрока
         self.speed = 3
@@ -66,7 +69,6 @@ class Player:
 
         # для прилипания к стенке
         self.sticky = False
-        self.sticky_timer = 0
         self.ground = True
 
         # для толкания коробки
@@ -79,8 +81,19 @@ class Player:
     # метод для полного обновления игрока. Нужен, чтобы не вызывать много методов
     def update(self):
         self.animate()
-        var.scroll = self.move()
-        var.bg_scroll -= var.scroll
+
+        # если персонаж жив
+        if self.alive:
+            # анимируем
+
+            # даём возможность перемещать персонажа и получаем переменную для скролинга
+            var.scroll = self.move()
+
+            # переменная для параллакса
+            var.bg_scroll -= var.scroll
+
+        else:
+            self.death()
 
     # метод для анимации персонажа
     def animate(self):
@@ -97,8 +110,24 @@ class Player:
             self.action = new_action
             self.frame = 0
 
+    # метод для гибели персонажа. Покойся с миром, дружок :(
+    def death(self):
+        self.update_action(4)
+
+        dy = 0
+
+        if self.rect.y > var.HEIGHT // 2 - 100:
+            dy -= self.speed
+
+        self.rect.y += dy
+
     # перемещение игрока
     def move(self):
+        if self.health <= 0:
+            self.alive = False
+
+            return 0
+
         # переменные для перемещения
         dx = dy = 0
 
@@ -150,6 +179,7 @@ class Player:
 
         # прилипание к стенкам
         if pygame.sprite.spritecollide(self, self.game.sticky_group, False):
+            print('ok')
             self.sticky = True
             self.in_air = False
             self.ground = False
@@ -238,6 +268,34 @@ class Player:
                     self.in_air = False
                     self.sticky = False
                     self.ground = True
+
+        # столкновение с противником
+        if pygame.sprite.spritecollide(self, self.game.enemies, False) and not self.invincibility:
+            # уменьшаем здоровье
+            self.health -= 1
+
+            # даём непобедимость
+            self.invincibility = True
+            self.invincibility_timer = 100
+
+            # убираем флаг (чтобы не писать отпрыгивание по новой)
+            self.ground = False
+
+            # добавляем небольшое подпрыгивание
+            self.vel_y = -self.jump_force // 2
+            dy = self.vel_y
+
+        if self.invincibility_timer > 0:
+            self.invincibility_timer -= 1
+
+        else:
+            self.invincibility = False
+
+        # столкновение с "лавой"
+        if pygame.sprite.spritecollide(self, self.game.ketchup_group, False):
+            dy = 0
+            self.in_air = False
+            self.alive = False
 
         # изменение анимации
         if push:

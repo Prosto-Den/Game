@@ -77,8 +77,19 @@ def draw_text(text, x, y, color):
     screen.blit(img, rect)
 
 
+# функция на проверку наличия игрока на поле
+def check_for_player():
+    for row in world_data:
+        for tile in row:
+            if tile == 6:
+                return True
+
+    return False
+
+
 # основной цикл
 run = True
+
 while run:
     # обработчик событий
     for event in pygame.event.get():
@@ -130,11 +141,25 @@ while run:
     x = (pos[0] + var.scroll) // var.TILE_SIZE
     y = pos[1] // var.TILE_SIZE
 
+    # проверяем, находится ли курсор на поле
     if pos[0] < var.WIDTH and pos[1] < var.HEIGHT:
+        # создаём блок при нажатии ЛКМ
         if pygame.mouse.get_pressed()[0]:
+            # если в клетку помещаем блок, отличный от находящегося там
             if world_data[y][x] != var.current_tile:
+                # меняем значение в массиве
                 world_data[y][x] = var.current_tile
+
+                # если ставиться игрок, но игрок уже есть на поле
+                if var.current_tile == 6 and var.player_created:
+                    world_data[y][x] = -1
+
+                # проверяем, есть ли игрок на поле
+                var.player_created = check_for_player()
+
+        # удаление блока с поля при нажании ПКМ
         if pygame.mouse.get_pressed()[2]:
+            var.player_created = check_for_player()
             if world_data[y][x] != -1:
                 world_data[y][x] = -1
 
@@ -176,6 +201,9 @@ while run:
             # считываем данные уровня
             world_data = pickle.load(pickle_in)
 
+            # проверяем, есть ли на уровне игрок
+            var.player_created = check_for_player()
+
             # закрываем файл
             pickle_in.close()
 
@@ -188,6 +216,8 @@ while run:
         for i in range(var.ROWS):
             for j in range(var.COLUMNS):
                 world_data[i][j] = -1
+
+        var.player_created = check_for_player()
 
     # отображаем номер уровня, в котором сейчас работаем
     draw_text(f'Level: {var.level}', 0, var.HEIGHT, var.WHITE)

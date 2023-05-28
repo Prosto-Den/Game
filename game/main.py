@@ -1,5 +1,6 @@
 import pygame
 import world
+import health_bar as bar
 import variables as var
 
 
@@ -10,7 +11,7 @@ class Game:
 
         # экран
         self.screen = pygame.display.set_mode(var.RESOLUTION)
-        pygame.display.set_caption('Test')
+        pygame.display.set_caption('PileSOS')
 
         # часы. Для ограничения FPS
         self.clock = pygame.time.Clock()
@@ -27,8 +28,19 @@ class Game:
         # список с платформами
         self.platform_list = []
 
+        self.trampolines = []
+
+        # группа с лавой
+        self.ketchup_group = pygame.sprite.Group()
+
+        # группа с противниками
+        self.enemies = pygame.sprite.Group()
+
         # игровой мир
         self.world = world.World(self)
+        self.world.process_data()
+
+        self.health_bar = bar.HealthBar(self)
 
         # группа с пулями
         self.bullet_group = pygame.sprite.Group()
@@ -37,7 +49,8 @@ class Game:
         self.sticky_group = pygame.sprite.Group()
 
         # фон
-        self.bg_img = pygame.image.load('img/background/bg.png').convert_alpha()
+        bg_img = pygame.image.load('img/background/bg.png').convert_alpha()
+        self.bg_img = pygame.transform.scale(bg_img, var.RESOLUTION)
 
         self.carpet = pygame.image.load('img/background/carpet.png').convert_alpha()
 
@@ -51,7 +64,7 @@ class Game:
         width = self.bg_img.get_width()
 
         for i in range(5):
-            self.screen.blit(self.bg_img, ((i * width) - var.bg_scroll, 0))
+            self.screen.blit(self.bg_img, ((i * width) - var.bg_scroll * 0.5, 0))
             self.screen.blit(self.carpet, ((i * width) - var.bg_scroll * 0.6, var.HEIGHT - self.carpet.get_height()))
 
     # метод для отрисовки сетки
@@ -68,7 +81,7 @@ class Game:
     # метод для отображения FPS
     def show_FPS(self):
         img = self.font.render(f'FPS: {self.clock.get_fps():.1f}', True, var.GREEN)
-        rect = img.get_rect(topleft=(0, 0))
+        rect = img.get_rect(topright=(var.WIDTH, 0))
 
         self.screen.blit(img, rect)
 
@@ -79,6 +92,8 @@ class Game:
 
         # отрисовываем игрока
         self.player.draw()
+
+        self.health_bar.draw()
 
         # отрисовываем пули
         for bullet in self.bullet_group:
@@ -96,9 +111,20 @@ class Game:
         for stick in self.sticky_group:
             stick.draw()
 
+        # отрисовываем противников
+        for enemy in self.enemies:
+            enemy.draw()
+
+        # отрисовываем лаву
+        for lava in self.ketchup_group:
+            lava.draw()
+
+        for tramp in self.trampolines:
+            tramp.draw()
+
     # обновляем объекты в мире
     def update(self):
-        # обновляем переменную скроллинга
+        # обновляем игрока
         self.player.update()
 
         # передвигаем пули
@@ -109,10 +135,32 @@ class Game:
         for plat in self.platform_list:
             plat.move()
 
+        for enemy in self.enemies:
+            enemy.update()
+
     # метод для обновления экран
     def update_screen(self):
         pygame.display.flip()
         self.clock.tick(var.FPS)
+
+    # метод для рестарта уровня
+    def restart(self):
+        # очищаем всё, что можно
+        self.player = None
+        self.boxes = []
+        self.obstacle_list = []
+        self.platform_list = []
+        self.trampolines = []
+        self.ketchup_group.empty()
+        self.bullet_group.empty()
+        self.enemies.empty()
+        self.sticky_group.empty()
+
+        # сбрасываем переменные для скроллинга
+        var.scroll = var.bg_scroll = 0
+
+        # загружаем уровень
+        self.world.process_data()
 
     # метод обработки событий
     def events(self):
@@ -136,6 +184,9 @@ class Game:
                 if event.key == pygame.K_SPACE:
                     self.player.fire = True
 
+                if event.key == pygame.K_r and not self.player.alive:
+                    self.restart()
+
             # обработка отпускания клавиши
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_d:
@@ -157,7 +208,7 @@ if __name__ == '__main__':
     while game.events():
         game.draw_bg()
 
-        game.draw_grid()
+        #game.draw_grid()
 
         game.update()
         game.draw_objects()

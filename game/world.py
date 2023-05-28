@@ -5,6 +5,7 @@ import box
 import platform
 import enemy
 import lava
+import trampoline
 import variables as var
 import os
 
@@ -41,6 +42,8 @@ class World:
                     # если это земля
                     if tile == 0:
                         img = IMG_LIST[tile].convert_alpha()
+                        img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
+
                         rect = img.get_rect(topleft=(x * var.TILE_SIZE, y * var.TILE_SIZE))
 
                         tile_data = (img, rect)
@@ -50,18 +53,28 @@ class World:
                     # если это коробка
                     if tile == 1:
                         img = IMG_LIST[tile].convert_alpha()
+                        img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
+
                         b = box.Box(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE, img)
 
                         self.game.boxes.append(b)
 
                     if tile == 2:
                         img = IMG_LIST[tile].convert_alpha()
+                        img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
+
                         lav = lava.Lava(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE, img)
 
                         self.game.ketchup_group.add(lav)
 
                     if tile == 3:
-                        pass
+                        img = IMG_LIST[tile].convert_alpha()
+                        img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
+
+                        tramp = trampoline.Trampoline(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE, img)
+
+                        self.game.trampolines.append(tramp)
+
 
                     if tile == 4:
                         counter += 1

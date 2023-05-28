@@ -71,22 +71,18 @@ class Player:
         self.sticky = False
         self.ground = True
 
-        # для толкания коробки
-        self.push = False
-
     # отрисовка игрока на экране
     def draw(self):
         self.game.screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
 
     # метод для полного обновления игрока. Нужен, чтобы не вызывать много методов
     def update(self):
+        # анимируем
         self.animate()
 
         # если персонаж жив
         if self.alive:
-            # анимируем
-
-            # даём возможность перемещать персонажа и получаем переменную для скролинга
+            # даём возможность перемещать персонажа и получаем переменную для скроллинга
             var.scroll = self.move()
 
             # переменная для параллакса
@@ -112,6 +108,10 @@ class Player:
 
     # метод для гибели персонажа. Покойся с миром, дружок :(
     def death(self):
+        self.health = 0
+
+        var.scroll = 0
+
         self.update_action(4)
 
         dy = 0
@@ -123,6 +123,7 @@ class Player:
 
     # перемещение игрока
     def move(self):
+        # проверяем, жив ли игрок
         if self.health <= 0:
             self.alive = False
 
@@ -158,7 +159,7 @@ class Player:
         if self.jump and not self.in_air and not self.sticky:
             self.vel_y = -self.jump_force
             self.in_air = True
-            self.jump = False
+            #self.jump = False
 
         # стрельба
         if self.fire:
@@ -179,7 +180,6 @@ class Player:
 
         # прилипание к стенкам
         if pygame.sprite.spritecollide(self, self.game.sticky_group, False):
-            print('ok')
             self.sticky = True
             self.in_air = False
             self.ground = False
@@ -201,9 +201,11 @@ class Player:
         # если уже отлипли от стены, но ещё не приземлились
         if not self.sticky and not self.ground:
             if self.direction < 0 and not self.moving_left:
+                self.flip = False
                 dx += self.speed
 
             elif self.direction > 0 and not self.moving_right:
+                self.flip = True
                 dx -= self.speed
 
         # столкновение со стенками
@@ -222,10 +224,14 @@ class Player:
                 # если падаем
                 else:
                     dy = tile[1].top - self.rect.bottom
+
                     self.vel_y = 0
+
                     self.in_air = False
                     self.sticky = False
                     self.ground = True
+
+                    self.jump_force = 11
 
         # столкновение с коробками
         for box in self.game.boxes:
@@ -238,10 +244,14 @@ class Player:
             if box.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 if self.vel_y >= 0:
                     self.vel_y = 0
+
                     dy = box.rect.top - self.rect.bottom
+
                     self.in_air = False
                     self.sticky = False
                     self.ground = True
+
+                    self.jump_force = 11
 
         # столкновение с платформами
         for plat in self.game.platform_list:
@@ -249,6 +259,7 @@ class Player:
             if plat.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
                 self.sticky = False
+                self.ground = True
 
             # по вертикали
             if plat.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
@@ -262,19 +273,31 @@ class Player:
                     self.rect.bottom = plat.rect.top - 1
                     dy = 0
 
+                    # если персонаж никуда не идёт
                     if not self.moving_right and not self.moving_left:
+                        # даём ему то же перемещение, что и у платформы
                         dx = plat.dx
 
+                    # меняем значение флагов
                     self.in_air = False
                     self.sticky = False
                     self.ground = True
+
+                    self.jump_force = 11
+
+        # проверяем, стоит ли игрок на батуте
+        for tramp in self.game.trampolines:
+            if tramp.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                dy = tramp.rect.top - self.rect.bottom
+                self.jump_force = 18
+                self.in_air = False
 
         # столкновение с противником
         if pygame.sprite.spritecollide(self, self.game.enemies, False) and not self.invincibility:
             # уменьшаем здоровье
             self.health -= 1
 
-            # даём непобедимость
+            # даём неуязвимость
             self.invincibility = True
             self.invincibility_timer = 100
 
@@ -285,6 +308,7 @@ class Player:
             self.vel_y = -self.jump_force // 2
             dy = self.vel_y
 
+        # таймер неуязвимости (чтобы от врага не помереть сразу же)
         if self.invincibility_timer > 0:
             self.invincibility_timer -= 1
 
@@ -298,15 +322,19 @@ class Player:
             self.alive = False
 
         # изменение анимации
+        # толкание
         if push:
             self.update_action(3)
 
+        # ходьба
         elif self.moving_left or self.moving_right:
             self.update_action(1)
 
+        # прыжок
         elif self.in_air:
             self.update_action(2)
 
+        # стоит на месте
         else:
             self.update_action(0)
 

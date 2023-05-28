@@ -22,7 +22,7 @@ class Bullet(pygame.sprite.Sprite):
 
         # создаём текстурку и хитбокс
         self.image = pygame.transform.scale(img, (15, 15))
-        self.rect = self.image.get_rect(center = (x, y))
+        self.rect = self.image.get_rect(center=(x, y))
 
         # параметры для движения пули
         self.speed = 8
@@ -37,10 +37,10 @@ class Bullet(pygame.sprite.Sprite):
 
         # флаги для проверки, на стене пулька или на платформе
         self.on_wall = False
-        self.on_platform = False
+        self.on_ground = False
 
         # таймер время жизни пульки
-        self.life_timer = 1000
+        self.life_timer = 200
 
     # обновляем положение пули
     def move(self):
@@ -77,9 +77,7 @@ class Bullet(pygame.sprite.Sprite):
                     """Меняем перемещение по вертикали"""
                     dy = ground[1].top - self.rect.bottom
                     """Не перемещаем пулю по горизонтали"""
-
-                    # начинаем обратный отсчёт времени жизни пульки
-                    self.life_timer -= 1
+                    self.on_ground = True
 
             # если же произошло столкновение по горизонтали, то тут всё интересней
             if ground[1].colliderect(self.rect.x + dx, self.rect.y, self.image.get_width(), self.image.get_height()):
@@ -141,22 +139,34 @@ class Bullet(pygame.sprite.Sprite):
                 elif self.vel_y > 0:
                     """Перерасчитываем все перемещения"""
                     dy = plat.rect.top - self.rect.bottom
-                    # начинаем обратный отчёт
-                    self.life_timer -= 1
+                    self.on_ground = True
 
             # столкновение по горизонтали
             if plat.rect.colliderect(self.rect.x + dx, self.rect.y, self.image.get_width(), self.image.get_height()):
                 self.on_wall = True
+
+        # проверяем столкновение с противниками, если пулька не на земле
+        if not self.on_ground:
+            for enemy in self.game.enemies:
+                if enemy.rect.colliderect(self.rect):
+                    enemy.health -= 1
+
+                    self.kill()
 
         # если столкнулся со стенкой
         if self.on_wall:
             """Обнуляем перемещение по горизонтали"""
             dx = 0
 
+        # отсчёт времени жизни пульки
+        if self.on_ground:
+            self.life_timer -= 1
+
         # обновляем координаты пули
         self.rect.x += dx
         self.rect.y += dy
 
+        # если пуля остановилась
         if self.stop:
             # получаем координаты блока, на котором она остановилась
             tile_x = x // var.TILE_SIZE

@@ -2,9 +2,8 @@ import pygame
 
 
 # класс коробки (Блок, который игрок может толкать)
-class Box(pygame.sprite.Sprite):
+class Box:
     def __init__(self, game, x: int, y: int, image: pygame.Surface):
-        super().__init__()
         self.game = game  # объект главного класса, в котором хранятся объекты других классов
 
         # создаём картинку и хитбокс

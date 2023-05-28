@@ -63,6 +63,7 @@ class Platform:
             # обновляем переменную передвижения
             self.dx = self.speed * self.move_x
 
+        # если платформа двигается по вертикали
         if self.move_y != 0:
             # проверка, вышла ли платформа за радиус перемещения
             if self.rect.y <= self.start_y - self.radius * var.TILE_SIZE or \

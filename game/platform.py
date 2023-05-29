@@ -11,6 +11,9 @@ class Platform:
         self.image = image
         self.rect = self.image.get_rect(topleft=(x, y))
 
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
         # стартовая позиция
         self.start_x = self.rect.x
         self.start_y = self.rect.y
@@ -45,6 +48,9 @@ class Platform:
             if self.rect.x >= self.start_x + self.radius * var.TILE_SIZE or \
                     self.rect.x <= self.start_x - self.radius * var.TILE_SIZE:
                 self.move_x *= -1
+
+            if self.game.player.rect.colliderect(self.rect.x + self.dx, self.rect.y, self.width, self.height):
+                self.game.player.rect.x += self.dx
 
             # проверка на столкновение со стенами
             for ground in self.game.obstacle_list:

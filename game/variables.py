@@ -1,3 +1,5 @@
+import os
+
 # разрешение окна
 WIDTH = 1000
 HEIGHT = 800
@@ -5,6 +7,7 @@ HEIGHT = 800
 RESOLUTION = (WIDTH, HEIGHT)
 
 # цвета
+MENU_COLOR = (132, 177, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
@@ -20,8 +23,17 @@ SCROLL_THRESH = 200
 # размер клеток
 TILE_SIZE = 50
 
-# номер уровня
+# номер текущего уровня
 level = 0
+
+# кол-во уровней
+MAX_LEVEL = len(os.listdir('levels'))
+
+# переменная для отображения главного меню
+main_menu = True
+
+# таймер, после которого появится кнопка рестарта
+restart_timer = 100
 
 # Размеры мира
 ROWS = 16

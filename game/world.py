@@ -6,6 +6,7 @@ import platform
 import enemy
 import lava
 import trampoline
+import exit
 import variables as var
 import os
 
@@ -26,13 +27,14 @@ for i in dir_tiles:
 class World:
     def __init__(self, game):
         self.game = game
+        self.world_data = []
 
+    # метод обработки данных. Нужен для первичной загрузки мира и рестарта
+    def process_data(self):
         # загружаем данные
         with open(f'levels/level_data_{var.level}', 'rb') as data:
             self.world_data = pickle.load(data)
 
-    # метод обработки данных. Нужен для первичной загрузки мира и рестарта
-    def process_data(self):
         counter = 0
 
         for y, row in enumerate(self.world_data):
@@ -51,7 +53,7 @@ class World:
                         self.game.obstacle_list.append(tile_data)
 
                     # если это коробка
-                    if tile == 1:
+                    elif tile == 1:
                         img = IMG_LIST[tile].convert_alpha()
                         img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
 
@@ -59,7 +61,8 @@ class World:
 
                         self.game.boxes.append(b)
 
-                    if tile == 2:
+                    # если это блок лавы
+                    elif tile == 2:
                         img = IMG_LIST[tile].convert_alpha()
                         img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
 
@@ -67,7 +70,8 @@ class World:
 
                         self.game.ketchup_group.add(lav)
 
-                    if tile == 3:
+                    # если это батут
+                    elif tile == 3:
                         img = IMG_LIST[tile].convert_alpha()
                         img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
 
@@ -75,8 +79,8 @@ class World:
 
                         self.game.trampolines.append(tramp)
 
-
-                    if tile == 4:
+                    # если это блок вертикальной платформы
+                    elif tile == 4:
                         counter += 1
 
                         if row[x + 1] == 4:
@@ -92,7 +96,8 @@ class World:
 
                         counter = 0
 
-                    if tile == 5:
+                    # если это блок горизонтальной платформы
+                    elif tile == 5:
                         counter += 1
 
                         if row[x + 1] == 5:
@@ -109,12 +114,17 @@ class World:
                         counter = 0
 
                     # если это игрок
-                    if tile == 6:
+                    elif tile == 6:
                         self.game.player = player.Player(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
 
-                    if tile == 7:
+                    # если это противник
+                    elif tile == 7:
                         enm = enemy.Enemy(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
                         self.game.enemies.add(enm)
+
+                    # если это блок выхода с уровня
+                    if tile == 8:
+                        self.game.exit_tile = exit.Exit(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
 
     # рисуем мир
     def draw(self):

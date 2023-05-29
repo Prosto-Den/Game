@@ -51,7 +51,20 @@ for i in range(var.TILE_TYPES):
         var.btn_row += 1
         var.btn_col = 0
 
+bg_img = pygame.image.load('img/background/bg.png').convert_alpha()
+carpet = pygame.image.load('img/background/carpet.png').convert_alpha()
 
+
+# рисуем задний фон  
+def draw_bg():
+    width = bg_img.get_width()
+
+    for i in range(5):
+        screen.blit(bg_img, ((i * width) - var.scroll * 0.5, 0))
+        screen.blit(carpet, ((i * width) - var.scroll * 0.6, var.HEIGHT - carpet.get_height()))
+
+
+# рисуем сетку
 def draw_grid():
     for x in range(var.COLUMNS):
         pygame.draw.line(screen, var.BLACK, (x * var.TILE_SIZE - var.scroll, 0),
@@ -165,6 +178,7 @@ while run:
 
     # рисуем задний фон
     screen.fill(var.WHITE)
+    draw_bg()
 
     # рисуем сетку
     draw_grid()

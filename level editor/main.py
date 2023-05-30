@@ -55,7 +55,7 @@ bg_img = pygame.image.load('img/background/bg.png').convert_alpha()
 carpet = pygame.image.load('img/background/carpet.png').convert_alpha()
 
 
-# рисуем задний фон  
+# рисуем задний фон
 def draw_bg():
     width = bg_img.get_width()
 

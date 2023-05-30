@@ -61,6 +61,13 @@ class Enemy(pygame.sprite.Sprite):
         elif self.direction == 0:
             self.direction = random.choice([-1, 1])
 
+        # проверка выхода за границы патрулируемой территории
+        if self.rect.x >= self.start + self.radius * var.TILE_SIZE:
+            self.direction = -1
+
+        elif self.rect.x <= self.start - self.radius * var.TILE_SIZE:
+            self.direction = 1
+
         dx += self.speed * self.direction
 
         # столкновение со стенами
@@ -80,5 +87,6 @@ class Enemy(pygame.sprite.Sprite):
     # метод отрисовки противника
     def draw(self):
         self.rect.x += var.scroll
+        self.start += var.scroll
 
         self.game.screen.blit(self.image, self.rect)

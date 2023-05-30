@@ -27,13 +27,14 @@ TILE_SIZE = 50
 level = 0
 
 # кол-во уровней
-MAX_LEVEL = len(os.listdir('levels'))
+MAX_LEVEL = len(os.listdir('levels')) - 1
 
 # переменная для отображения главного меню
 main_menu = True
 
-# таймер, после которого появится кнопка рестарта
+# таймеры
 restart_timer = 100
+congratulation_timer = 0
 
 # Размеры мира
 ROWS = 16

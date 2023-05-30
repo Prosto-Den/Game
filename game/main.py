@@ -29,6 +29,7 @@ class Game:
         # список с платформами
         self.platform_list = []
 
+        # список с батутами
         self.trampolines = []
 
         # группа с лавой
@@ -37,12 +38,17 @@ class Game:
         # группа с противниками
         self.enemies = pygame.sprite.Group()
 
-        self.exit_tile = None
+        # выход с уровня
+        self.exit_tiles = []
+
+        # группа с аптечками
+        self.heals = pygame.sprite.Group()
 
         # игровой мир
         self.world = world.World(self)
         self.world.process_data()
 
+        # шкала здоровья игрока
         self.health_bar = bar.HealthBar(self)
 
         # группа с пулями
@@ -58,15 +64,18 @@ class Game:
         # шрифт
         self.font = pygame.font.SysFont('arial', 30)
 
+        # картинки для кнопок
         self.start_image = self.font.render('START', True, var.WHITE)
         self.exit_image = self.font.render('EXIT', True, var.WHITE)
         self.restart_image = self.font.render('RESTART', True, var.WHITE)
 
+        # кнопки
         self.start_button = btn.Button(self, var.WIDTH // 2 - 50, var.HEIGHT // 2, self.start_image)
         self.exit_button = btn.Button(self, var.WIDTH // 2 + 50, var.HEIGHT // 2, self.exit_image)
         self.restart_button = btn.Button(self, var.WIDTH // 2, var.HEIGHT // 2, self.restart_image)
 
-        self.exit = True
+        # флаг для выхода их игры
+        self.quit = True
 
     # метод для отрисовки фона
     def draw_bg(self):
@@ -88,9 +97,11 @@ class Game:
         x = var.WIDTH // var.TILE_SIZE
         y = var.HEIGHT // var.TILE_SIZE
 
+        # горизонтальные линии
         for i in range(y):
             pygame.draw.line(self.screen, var.BLACK, (0, i * var.TILE_SIZE), (var.WIDTH, i * var.TILE_SIZE), 2)
 
+        # вертикальыне линии
         for i in range(x):
             pygame.draw.line(self.screen, var.BLACK, (i * var.TILE_SIZE, 0), (i * var.TILE_SIZE, var.HEIGHT))
 
@@ -98,6 +109,13 @@ class Game:
     def show_FPS(self):
         img = self.font.render(f'FPS: {self.clock.get_fps():.1f}', True, var.GREEN)
         rect = img.get_rect(topright=(var.WIDTH, 0))
+
+        self.screen.blit(img, rect)
+
+    # метод для отображения текста на экране
+    def draw_text(self, text: str, x: int, y: int, colour: tuple):
+        img = self.font.render(text, True, colour)
+        rect = img.get_rect(center = (x ,y))
 
         self.screen.blit(img, rect)
 
@@ -109,40 +127,48 @@ class Game:
             var.main_menu = False
 
         elif self.exit_button.draw():
-            self.exit = False
+            self.quit = False
+
+        if var.congratulation_timer > 0:
+            self.draw_text('Congratulation! You beat the game!', var.WIDTH // 2, 50, var.WHITE)
+            var.congratulation_timer -= 1
 
     # метод для отрисовки объектов
     def draw_objects(self):
         # отрисовываем мир
         self.world.draw()
 
-        # отрисовываем игрока
+        # отрисовываем аптечки
+        for heal in self.heals:
+            heal.draw()
+
+        # отрисовка игрока
         self.player.draw()
 
         # отрисовка здоровья персонажа
         self.health_bar.draw()
 
-        # отрисовываем пули
+        # отрисовка пули
         for bullet in self.bullet_group:
             bullet.draw()
 
-        # отрисовываем коробки
+        # отрисовка коробки
         for box in self.boxes:
             box.draw(var.scroll)
 
-        # отрисовываем платформы
+        # отрисовка платформы
         for plat in self.platform_list:
             plat.draw()
 
-        # отрисовываем липкие поверхности
+        # отрисовка липких поверхности
         for stick in self.sticky_group:
             stick.draw()
 
-        # отрисовываем противников
+        # отрисовка противников
         for enemy in self.enemies:
             enemy.draw()
 
-        # отрисовываем лаву
+        # отрисовка лавы
         for lava in self.ketchup_group:
             lava.draw()
 
@@ -150,8 +176,9 @@ class Game:
         for tramp in self.trampolines:
             tramp.draw()
 
-        if self.exit_tile is not None:
-            self.exit_tile.draw()
+        # отрисовка клетки выхода
+        for exit in self.exit_tiles:
+            exit.draw()
 
     # обновляем объекты в мире
     def update(self):
@@ -166,11 +193,13 @@ class Game:
         for plat in self.platform_list:
             plat.move()
 
+        # обновление противников
         for enemy in self.enemies:
             enemy.update()
 
-        if self.exit_tile is not None:
-            self.exit_tile.exit()
+        # обновление клетки выхода
+        for exit in self.exit_tiles:
+            exit.exit()
 
     # метод для обновления экран
     def update_screen(self):
@@ -189,7 +218,8 @@ class Game:
         self.bullet_group.empty()
         self.enemies.empty()
         self.sticky_group.empty()
-        self.exit_tile = None
+        self.heals.empty()
+        self.exit_tiles = []
 
         # сбрасываем переменные для скроллинга
         var.scroll = var.bg_scroll = 0
@@ -206,7 +236,7 @@ class Game:
             # выход из игры
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
-                self.exit = False
+                self.quit = False
 
             if not var.main_menu:
                 # обработка нажатия на клавишу
@@ -234,7 +264,7 @@ class Game:
                     if event.key == pygame.K_w:
                         self.player.jump = False
 
-        return self.exit
+        return self.quit
 
 
 # тут происходит вызов методов

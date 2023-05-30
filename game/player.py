@@ -119,12 +119,15 @@ class Player:
         if self.rect.y > var.HEIGHT // 2 - 100:
             dy -= self.speed
 
+        elif var.restart_timer > 0:
+            var.restart_timer -= 1
+
         self.rect.y += dy
 
     # перемещение игрока
     def move(self):
         # проверяем, жив ли игрок
-        if self.health <= 0:
+        if self.health <= 0 or self.rect.y > var.HEIGHT:
             self.alive = False
 
             return 0
@@ -292,6 +295,12 @@ class Player:
                 self.jump_force = 18
                 self.in_air = False
 
+        # взаимодействие с аптечкой
+        for heal in self.game.heals:
+            if heal.rect.colliderect(self.rect) and self.health < 3:
+                self.health += 1
+                heal.kill()
+
         # столкновение с противником
         if pygame.sprite.spritecollide(self, self.game.enemies, False) and not self.invincibility:
             # уменьшаем здоровье
@@ -337,6 +346,11 @@ class Player:
         # стоит на месте
         else:
             self.update_action(0)
+
+        # проверка на столкновение с верхней границей экрана
+        if self.rect.y + dy < 0:
+            self.vel_y = 0
+            dy = -self.rect.top
 
         # перемещаем игрока
         self.rect.x += dx

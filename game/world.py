@@ -1,14 +1,15 @@
 import pygame.transform
-import player
 import pickle
+import os
+import player
 import box
 import platform
 import enemy
 import lava
 import trampoline
 import exit
+import heal
 import variables as var
-import os
 
 dir_tiles = os.listdir('img/tiles')
 
@@ -123,8 +124,14 @@ class World:
                         self.game.enemies.add(enm)
 
                     # если это блок выхода с уровня
-                    if tile == 8:
-                        self.game.exit_tile = exit.Exit(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
+                    elif tile == 8:
+                        self.game.exit_tiles.append(exit.Exit(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE))
+
+                    # если это аптечка
+                    elif tile == 9:
+                        he = heal.Heal(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
+
+                        self.game.heals.add(he)
 
     # рисуем мир
     def draw(self):

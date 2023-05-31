@@ -5,7 +5,7 @@ import random
 
 # класс противника
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x: int, y: int):
         super().__init__()
         self.game = game
 
@@ -69,6 +69,14 @@ class Enemy(pygame.sprite.Sprite):
             self.direction = 1
 
         dx += self.speed * self.direction
+
+        # столкновение с другими врагами
+        for enemy in self.game.enemies:
+            if enemy != self:
+                if enemy.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                    self.direction = 0
+                    self.standing_timer = 100
+                    dx = self.speed * self.direction
 
         # столкновение со стенами
         for tile in self.game.obstacle_list:

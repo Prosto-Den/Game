@@ -4,17 +4,18 @@ import variables as var
 
 # класс кнопка
 class Button:
-    def __init__(self, image, x, y):
+    def __init__(self, image: pygame.Surface, x: int, y: int, type: str = ''):
         img = image
 
-        img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
+        if type == 'tile':
+            img = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
 
         self.image = img
         self.rect = self.image.get_rect(topleft = (x, y))
         self.clicked = False
 
     # отображение на экране и проверка, нажата ли кнопка
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface):
         # рисуем кнопку на экране
         screen.blit(self.image, self.rect)
 

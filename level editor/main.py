@@ -43,7 +43,7 @@ clear_btn = btn.Button(clear_img, 550, var.HEIGHT + 50)
 btn_list = []
 
 for i in range(var.TILE_TYPES):
-    btn_list.append(btn.Button(img_tiles[i], var.WIDTH + (75 * var.btn_col) + 25, 75 * var.btn_row + 25))
+    btn_list.append(btn.Button(img_tiles[i], var.WIDTH + (75 * var.btn_col) + 25, 75 * var.btn_row + 25, 'tile'))
 
     var.btn_col += 1
 
@@ -83,7 +83,7 @@ def draw_world():
 
 
 # рисуем текст
-def draw_text(text, x, y, color):
+def draw_text(text: str, x: int, y: int, color: tuple):
     img = font.render(text, True, color)
     rect = img.get_rect(topleft=(x, y))
 

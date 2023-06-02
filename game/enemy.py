@@ -14,7 +14,10 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
         self.rect = self.image.get_rect(topleft = (x, y))
 
+        # позиция появления противника
         self.start = self.rect.x
+
+        # радиус зоны патруления
         self.radius = 3
 
         # здоровье противника
@@ -32,11 +35,13 @@ class Enemy(pygame.sprite.Sprite):
         # таймер для остановки
         self.standing_timer = 0
 
+    # метод для проверки, жив противник или нет
     def check_alive(self):
         if self.health <= 0:
             self.alive = False
             self.health = 0
 
+    # метод обновление противника. Чтобы не вызывать много методов
     def update(self):
         if self.alive:
             self.check_alive()

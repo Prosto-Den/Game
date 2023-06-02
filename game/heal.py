@@ -4,7 +4,7 @@ import variables as var
 
 # класс аптечки
 class Heal(pygame.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x: int, y: int):
         super().__init__()
 
         self.game = game
@@ -14,6 +14,7 @@ class Heal(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(img, (var.TILE_SIZE, var.TILE_SIZE))
         self.rect = self.image.get_rect(topleft = (x, y))
 
+    # метод для отрисовки земли
     def draw(self):
         self.rect.x += var.scroll
 

@@ -2,6 +2,7 @@ import pygame
 import variables as var
 
 
+# класс лавы. При соприкосновении с этим блоком игрок будет мгновенно умирать
 class Lava(pygame.sprite.Sprite):
     def __init__(self, game, x: int, y: int, image: pygame.Surface):
         super().__init__()
@@ -13,6 +14,7 @@ class Lava(pygame.sprite.Sprite):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+    # метод для отрисовки блока
     def draw(self):
         self.rect.x += var.scroll
 

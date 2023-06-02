@@ -4,7 +4,7 @@ import variables as var
 
 # класс "слизи". Позволяет прилипать к стенам
 class Sticky(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, direction):
+    def __init__(self, game, x: int, y: int, direction: int):
         super().__init__()
         self.game = game
 

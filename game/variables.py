@@ -18,7 +18,7 @@ FPS = 120
 # переменные для скроллинга
 scroll = 0
 bg_scroll = 0
-SCROLL_THRESH = 200
+SCROLL_THRESH = 400
 
 # размер клеток
 TILE_SIZE = 50

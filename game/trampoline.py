@@ -3,7 +3,7 @@ import variables as var
 
 
 class Trampoline:
-    def __init__(self, game, x, y, img: pygame.Surface):
+    def __init__(self, game, x: int, y: int, img: pygame.Surface):
         self.game = game
 
         self.image = img

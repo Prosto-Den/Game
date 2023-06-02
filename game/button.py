@@ -3,7 +3,7 @@ import pygame
 
 # класс кнопки
 class Button:
-    def __init__(self, game, x, y, img: pygame.Surface):
+    def __init__(self, game, x: int, y: int, img: pygame.Surface):
         self.game = game
 
         # создаём картинку и хитбокс

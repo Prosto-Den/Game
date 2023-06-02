@@ -4,7 +4,7 @@ import variables as var
 
 # класс для выхода с уровня
 class Exit:
-    def __init__(self, game, x, y):
+    def __init__(self, game, x: int, y: int):
         self.game = game
 
         img = pygame.image.load('img/exit/tile9.png').convert_alpha()
@@ -21,7 +21,7 @@ class Exit:
     # переход на следующий уровень
     def exit(self):
         if self.rect.colliderect(self.game.player.rect):
-            # если это не последний уровень уровень
+            # если это не последний уровень
             if var.level < var.MAX_LEVEL:
                 var.level += 1
                 self.game.restart()

@@ -108,17 +108,22 @@ class Player:
 
     # метод для гибели персонажа. Покойся с миром, дружок :(
     def death(self):
+        # снижаем здоровье до 0
         self.health = 0
 
+        # убираем скроллинг
         var.scroll = 0
 
+        # ставим анимацию смерти
         self.update_action(4)
 
         dy = 0
 
+        # перемещение нашего приведения
         if self.rect.y > var.HEIGHT // 2 - 100:
             dy -= self.speed
 
+        # таймер до появления кнопки рестарта
         elif var.restart_timer > 0:
             var.restart_timer -= 1
 
@@ -166,7 +171,12 @@ class Player:
 
         # стрельба
         if self.fire:
-            blt = bullet.Bullet(self.game, self.rect.centerx + self.width // 2 * self.direction, self.rect.y, self.direction)
+            if self.flip:
+                blt = bullet.Bullet(self.game, self.rect.centerx + self.width // 2 * self.direction, self.rect.y, -1)
+
+            else:
+                blt = bullet.Bullet(self.game, self.rect.centerx + self.width // 2 * self.direction, self.rect.y, 1)
+
             self.game.bullet_group.add(blt)
 
             self.fire = False

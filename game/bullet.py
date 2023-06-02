@@ -13,7 +13,7 @@ for i in range(var.ROWS):
 
 # класс пульки
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, direction):
+    def __init__(self, game, x: int, y: int, direction: int):
         super().__init__()
         self.game = game
 

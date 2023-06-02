@@ -18,14 +18,14 @@ class Box:
         self.wall = False
 
     # отрисовка коробки в мире
-    def draw(self, scroll):
+    def draw(self, scroll: int):
         # добавляем скроллинг
         self.rect.x += scroll
 
         self.game.screen.blit(self.image, self.rect)
 
     # метод толкания коробок
-    def move(self, dx):
+    def move(self, dx: int):
         # флаг на столкновение с противником
         enemy_check = False
 

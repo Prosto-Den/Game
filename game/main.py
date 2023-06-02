@@ -13,6 +13,7 @@ class Game:
         # экран
         self.screen = pygame.display.set_mode(var.RESOLUTION)
         pygame.display.set_caption('PileSOS')
+        pygame.display.set_icon(pygame.image.load('img/icon.png'))
 
         # часы. Для ограничения FPS
         self.clock = pygame.time.Clock()
@@ -60,6 +61,8 @@ class Game:
         # фон
         self.bg_img = pygame.image.load('img/background/bg.png').convert_alpha()
         self.carpet = pygame.image.load('img/background/carpet.png').convert_alpha()
+        main_bg = pygame.image.load('img/background/main_bg.png').convert_alpha()
+        self.main_bg = pygame.transform.scale(main_bg, var.RESOLUTION)
 
         # шрифт
         self.font = pygame.font.SysFont('arial', 30)
@@ -69,9 +72,13 @@ class Game:
         self.exit_image = self.font.render('EXIT', True, var.WHITE)
         self.restart_image = self.font.render('RESTART', True, var.WHITE)
 
+        # логотип
+        logo = pygame.image.load('img/logo/logo.png').convert_alpha()
+        self.logo_img = pygame.transform.scale(logo, (750, 150))
+
         # кнопки
-        self.start_button = btn.Button(self, var.WIDTH // 2 - 50, var.HEIGHT // 2, self.start_image)
-        self.exit_button = btn.Button(self, var.WIDTH // 2 + 50, var.HEIGHT // 2, self.exit_image)
+        self.start_button = btn.Button(self, var.WIDTH // 2 - 65, var.HEIGHT // 2, self.start_image)
+        self.exit_button = btn.Button(self, var.WIDTH // 2 + 55, var.HEIGHT // 2, self.exit_image)
         self.restart_button = btn.Button(self, var.WIDTH // 2, var.HEIGHT // 2, self.restart_image)
 
         # флаг для выхода их игры
@@ -121,16 +128,21 @@ class Game:
 
     # метод для отрисовки главного меню
     def main_menu(self):
-        self.screen.fill(var.MENU_COLOR)
+        self.screen.blit(self.main_bg, (0, 0))
 
+        self.screen.blit(self.logo_img, (var.WIDTH // 2 - self.logo_img.get_width() // 2, 130))
+
+        # отрисовка кнопки старта
         if self.start_button.draw():
             var.main_menu = False
 
+        # отрисовка кнопки выхода
         elif self.exit_button.draw():
             self.quit = False
 
+        # вывод сообщения с поздравлением о прохождении игры
         if var.congratulation_timer > 0:
-            self.draw_text('Congratulation! You beat the game!', var.WIDTH // 2, 50, var.WHITE)
+            self.draw_text('Congratulation! You beat the game!', var.WIDTH // 2 - 20, 340, var.GREEN)
             var.congratulation_timer -= 1
 
     # метод для отрисовки объектов
@@ -138,15 +150,8 @@ class Game:
         # отрисовываем мир
         self.world.draw()
 
-        # отрисовываем аптечки
-        for heal in self.heals:
-            heal.draw()
-
         # отрисовка игрока
         self.player.draw()
-
-        # отрисовка здоровья персонажа
-        self.health_bar.draw()
 
         # отрисовка пули
         for bullet in self.bullet_group:
@@ -176,9 +181,16 @@ class Game:
         for tramp in self.trampolines:
             tramp.draw()
 
+        # отрисовываем аптечки
+        for heal in self.heals:
+            heal.draw()
+
         # отрисовка клетки выхода
         for exit in self.exit_tiles:
             exit.draw()
+
+        # отрисовка здоровья персонажа
+        self.health_bar.draw()
 
     # обновляем объекты в мире
     def update(self):

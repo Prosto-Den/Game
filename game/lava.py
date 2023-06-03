@@ -11,6 +11,9 @@ class Lava(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(topleft = (x, y))
 
+        self.rect.height -= 1
+        self.rect.width -= 1
+
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 

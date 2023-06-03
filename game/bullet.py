@@ -24,6 +24,9 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(img, (15, 15))
         self.rect = self.image.get_rect(center=(x, y))
 
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
         # параметры для движения пули
         self.speed = 8
         self.vel_y = -3
@@ -144,6 +147,18 @@ class Bullet(pygame.sprite.Sprite):
             # столкновение по горизонтали
             if plat.rect.colliderect(self.rect.x + dx, self.rect.y, self.image.get_width(), self.image.get_height()):
                 self.on_wall = True
+
+        # столкновение с аптечками
+        for heal in self.game.heals:
+            if heal.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                self.on_wall = True
+
+            if heal.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                self.on_ground = True
+                dx = 0
+
+                if self.vel_y >= 0:
+                    dy = heal.rect.top - self.rect.bottom
 
         # проверяем столкновение с противниками, если пулька не на земле
         if not self.on_ground:

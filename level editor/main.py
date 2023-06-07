@@ -15,6 +15,7 @@ for row in range(var.ROWS):
 # экран редактора уровней
 screen = pygame.display.set_mode(var.RESOLUTION)
 pygame.display.set_caption('Level editor')
+pygame.display.set_icon(pygame.image.load('img/icon.png'))
 
 # шрифт
 font = pygame.font.SysFont('arial', 30)
@@ -31,18 +32,28 @@ for i in range(1, var.TILE_TYPES + 1):
 
     img_tiles.append(img)
 
+press = pygame.Surface((50, 50))
+
+img_tiles.append(press)
+
 save_img = font.render('SAVE', True, var.WHITE)
 load_img = font.render('LOAD', True, var.WHITE)
 clear_img = font.render('CLEAR', True, var.WHITE)
+
+yes_img = font.render('YES', True, var.WHITE)
+no_img = font.render('NO', True, var.WHITE)
 
 # кнопки
 save_btn = btn.Button(save_img, 500, var.HEIGHT)
 load_btn = btn.Button(load_img, 600, var.HEIGHT)
 clear_btn = btn.Button(clear_img, 550, var.HEIGHT + 50)
+yes_btn = btn.Button(yes_img, 420, 440)
+no_btn = btn.Button(no_img, 570, 440)
+
 
 btn_list = []
 
-for i in range(var.TILE_TYPES):
+for i in range(var.TILE_TYPES + 1):
     btn_list.append(btn.Button(img_tiles[i], var.WIDTH + (75 * var.btn_col) + 25, 75 * var.btn_row + 25, 'tile'))
 
     var.btn_col += 1
@@ -100,6 +111,26 @@ def check_for_player():
     return False
 
 
+def save():
+    pickle_out = open(f'created levels/level_data_{var.level}', 'wb')
+
+    pickle.dump(world_data, pickle_out)
+
+    pickle_out.close()
+
+    var.timer_save = 250
+
+
+def load(file):
+    global world_data
+
+    world_data = pickle.load(file)
+
+    file.close()
+
+    var.player_created = check_for_player()
+
+
 # основной цикл
 run = True
 
@@ -108,7 +139,7 @@ while run:
     for event in pygame.event.get():
         # выход из редактора
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-            run = False
+            var.exit_menu = True
             break
 
         # нажатие клавиши
@@ -139,10 +170,6 @@ while run:
             if event.key == pygame.K_LSHIFT:
                 var.scroll_speed = 5
 
-    # выход их основного цикла
-    if not run:
-        break
-
     # скроллинг мира
     if var.scroll_left and var.scroll > 0:
         var.scroll -= var.scroll_speed
@@ -155,7 +182,7 @@ while run:
     y = pos[1] // var.TILE_SIZE
 
     # проверяем, находится ли курсор на поле
-    if pos[0] < var.WIDTH and pos[1] < var.HEIGHT:
+    if (pos[0] < var.WIDTH and pos[1] < var.HEIGHT) and var.can_place:
         # создаём блок при нажатии ЛКМ
         if pygame.mouse.get_pressed()[0]:
             # если в клетку помещаем блок, отличный от находящегося там
@@ -175,6 +202,12 @@ while run:
             var.player_created = check_for_player()
             if world_data[y][x] != -1:
                 world_data[y][x] = -1
+
+    if var.can_place_timer > 0:
+        var.can_place_timer -= 1
+
+    else:
+        var.can_place = True
 
     # рисуем задний фон
     screen.fill(var.WHITE)
@@ -197,31 +230,14 @@ while run:
 
     # сохраняем уровень
     if save_btn.draw(screen):
-        pickle_out = open(f'created levels/level_data_{var.level}', 'wb')
-
-        pickle.dump(world_data, pickle_out)
-
-        pickle_out.close()
-
-        var.timer_save = 250
+        var.save_menu = True
 
     # загружаем уровень
     if load_btn.draw(screen):
-        # ловим ошибку
         try:
-            # открываем файл
             pickle_in = open(f'created levels/level_data_{var.level}', 'rb')
+            var.load_menu = True
 
-            # считываем данные уровня
-            world_data = pickle.load(pickle_in)
-
-            # проверяем, есть ли на уровне игрок
-            var.player_created = check_for_player()
-
-            # закрываем файл
-            pickle_in.close()
-
-        # если такого файла нет
         except FileNotFoundError:
             var.timer_error = 150
 
@@ -247,6 +263,71 @@ while run:
         draw_text('Level has been successfully saved', 700, var.HEIGHT + 25, var.GREEN)
 
         var.timer_save -= 1
+
+    # окно выхода из редактора
+    if var.exit_menu:
+        # закрываем окно сохранения и загрузки уровня
+        if var.save_menu:
+            var.save_menu = False
+
+        elif var.load_menu:
+            var.load_menu = False
+
+        # забираем возможность размещать блоки
+        var.can_place = False
+
+        # рисуем окно
+        pygame.draw.rect(screen, var.MENU_COLOR, (250, 300, 500, 200))
+
+        # текст
+        draw_text('Are you sure you want to exit?', 340, 320, var.WHITE)
+        draw_text('All unsaved changes wil be lost!', 330, 349, var.WHITE)
+
+        # если нажата кнопка да, закрываем редактор
+        if yes_btn.draw(screen):
+            pygame.quit()
+            run = False
+            break
+
+        # если нажата кнопка нет, закрываем окно выхода из редактора
+        elif no_btn.draw(screen):
+            var.exit_menu = False
+            var.can_place_timer = 50
+
+    # окно сохранения уровня
+    if var.save_menu:
+        var.can_place = False
+
+        pygame.draw.rect(screen, var.MENU_COLOR, (250, 300, 500, 200))
+
+        draw_text(f'Save as level {var.level}?', 420, 320, var.WHITE)
+
+        if yes_btn.draw(screen):
+            save()
+            var.save_menu = False
+            var.can_place_timer = 50
+
+        elif no_btn.draw(screen):
+            var.save_menu = False
+            var.can_place_timer = 50
+
+    # окно загрузки уровня
+    elif var.load_menu:
+        var.can_place = False
+
+        pygame.draw.rect(screen, var.MENU_COLOR, (250, 300, 500, 200))
+
+        draw_text(f'Load level {var.level}?', 420, 320, var.WHITE)
+        draw_text('All unsaved changes would be lost!', 300, 360, var.WHITE)
+
+        if yes_btn.draw(screen):
+            load(pickle_in)
+            var.load_menu = False
+            var.can_place_timer = 50
+
+        elif no_btn.draw(screen):
+            var.load_menu = False
+            var.can_place_timer = 50
 
     # выделяем выбранную кнопку
     pygame.draw.rect(screen, var.WHITE, btn_list[var.current_tile], 3)

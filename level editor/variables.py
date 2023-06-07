@@ -50,8 +50,16 @@ timer_error = 0
 # таймер для вывода сообщения об успешном сохранении уровня
 timer_save = 0
 
+player_created = False
+can_place = True
+can_place_timer = 0
+
 # меню выхода
 exit_menu = False
+
+# меню сохранения и загрузки
+save_menu = False
+load_menu = False
 
 # FPS
 FPS = 144

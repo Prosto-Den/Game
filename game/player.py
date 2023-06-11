@@ -266,6 +266,10 @@ class Player:
 
                     self.jump_force = 11
 
+                elif self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = box.rect.bottom - self.rect.top
+
         # столкновение с платформами
         for plat in self.game.platform_list:
             # по горизонтали
@@ -278,7 +282,7 @@ class Player:
             if plat.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 # если прыгаем
                 if abs((self.rect.top + dy) - plat.rect.bottom) < col_thresh:
-                    dy = plat.rect.bottom - self.rect.top
+                    dy = 0
                     self.vel_y = 0
 
                 # если падаем
@@ -326,6 +330,19 @@ class Player:
             # добавляем небольшое подпрыгивание
             self.vel_y = -self.jump_force // 2
             dy = self.vel_y
+
+        # столкновение с прессом
+        for press in self.game.presses:
+            if len(press.blocks) > 0:
+                block = press.blocks[0]
+
+                # по вертикали
+                if self.rect.colliderect(block.rect.x, block.rect.y + dy, block.width, block.height):
+                    self.alive = False
+
+                # по горизонтали
+                if block.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                    dx = 0
 
         # таймер неуязвимости (чтобы от врага не помереть сразу же)
         if self.invincibility_timer > 0:

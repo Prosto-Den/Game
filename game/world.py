@@ -9,6 +9,7 @@ import lava
 import trampoline
 import exit
 import heal
+import press
 import variables as var
 
 dir_tiles = os.listdir('img/tiles')
@@ -118,6 +119,9 @@ class World:
                     elif tile == 6:
                         self.game.player = player.Player(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
 
+                        if self.game.player.rect.x >= var.WIDTH - var.SCROLL_THRESH:
+                            var.scroll = var.WIDTH - var.SCROLL_THRESH - self.game.player.rect.x - 100
+
                     # если это противник
                     elif tile == 7:
                         enm = enemy.Enemy(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
@@ -132,6 +136,49 @@ class World:
                         he = heal.Heal(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
 
                         self.game.heals.add(he)
+
+                    # если это пресс
+                    elif tile == 10:
+                        prs = press.Press(self.game, x * var.TILE_SIZE, y * var.TILE_SIZE)
+                        self.game.presses.append(prs)
+
+        # смещаем все блоки в зависимости от того, где находится игрок
+        # Это нужно для того, чтобы мир корректно загрузился даже если игрок не находится в начала уровня
+        if var.scroll != 0:
+            for tile in self.game.obstacle_list:
+                tile[1].x += var.scroll
+
+            for b in self.game.boxes:
+                b.rect.x += var.scroll
+
+            for l in self.game.ketchup_group:
+                l.rect.x += var.scroll
+
+            for t in self.game.trampolines:
+                t.rect.x += var.scroll
+
+            for p in self.game.platform_list:
+                p.rect.x += var.scroll
+                p.start_x += var.scroll
+
+            self.game.player.rect.x += var.scroll
+
+            for e in self.game.enemies:
+                e.rect.x += var.scroll
+                e.start += var.scroll
+
+            for ex in self.game.exit_tiles:
+                ex.rect.x += var.scroll
+
+            for h in self.game.heals:
+                h.rect.x += var.scroll
+
+            for pr in self.game.presses:
+                pr.rect.x += var.scroll
+
+            var.bg_scroll -= var.scroll
+
+            var.scroll = 0
 
     # рисуем мир
     def draw(self):

@@ -45,6 +45,9 @@ class Game:
         # группа с аптечками
         self.heals = pygame.sprite.Group()
 
+        # список с прессами
+        self.presses = []
+
         # игровой мир
         self.world = world.World(self)
         self.world.process_data()
@@ -185,6 +188,10 @@ class Game:
         for heal in self.heals:
             heal.draw()
 
+        # отрисовываем пресс
+        for press in self.presses:
+            press.draw()
+
         # отрисовка клетки выхода
         for exit in self.exit_tiles:
             exit.draw()
@@ -213,6 +220,10 @@ class Game:
         for exit in self.exit_tiles:
             exit.exit()
 
+        # обновляем пресс
+        for press in self.presses:
+            press.update()
+
     # метод для обновления экран
     def update_screen(self):
         pygame.display.flip()
@@ -232,6 +243,7 @@ class Game:
         self.sticky_group.empty()
         self.heals.empty()
         self.exit_tiles = []
+        self.presses = []
 
         # сбрасываем переменные для скроллинга
         var.scroll = var.bg_scroll = 0
@@ -265,6 +277,9 @@ class Game:
                     if event.key == pygame.K_SPACE:
                         self.player.fire = True
 
+                    if event.key == pygame.K_r:
+                        self.restart()
+
                 # обработка отпускания клавиши
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_d:
@@ -284,10 +299,7 @@ if __name__ == '__main__':
     game = Game()
 
     while game.events():
-        if var.main_menu:
-            game.main_menu()
-
-        else:
+        if not var.main_menu:
             game.draw_bg()
 
             # game.draw_grid()
@@ -296,5 +308,8 @@ if __name__ == '__main__':
             game.draw_objects()
 
             game.show_FPS()
+
+        else:
+            game.main_menu()
 
         game.update_screen()

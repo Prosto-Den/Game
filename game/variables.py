@@ -24,7 +24,7 @@ SCROLL_THRESH = 400
 TILE_SIZE = 50
 
 # номер текущего уровня
-level = 0
+level = 1
 
 # кол-во уровней
 MAX_LEVEL = len(os.listdir('levels')) - 1
